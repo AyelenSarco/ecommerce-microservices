@@ -1,0 +1,97 @@
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+# ================================
+# Sensitive data / Config files
+# ================================
+
+# Environment variables
+.env
+.env.docker
+.env.*
+!.env.docker.example
+!.env.example
+!*.example.env
+
+# Spring Boot configuration (ALL microservices)
+**/src/main/resources/application.properties
+**/src/main/resources/application.yml
+**/src/main/resources/application.yaml
+
+
+# Example configs (allowed)
+!**/src/main/resources/application.example.properties
+
+
+# Local profiles
+**/application-local.properties
+**/application-local.yml
+!**/application-local.example.properties
+
+
+# ================================
+# Logs
+# ================================
+*.log
+**/logs/
+spring.log
+eureka.log
+gateway.log
+*.out
+
+
+
+# Maven / Gradle
+**/target/
+**/build/
+.gradle/
+.gradle-cache/
+
+# Maven Wrapper
+mvnw
+mvnw.cmd
+.mvn/wrapper/maven-wrapper.jar
+
+# ================================
+# Java
+# ================================
+*.class
+*.jar
+*.war
+*.ear
+
+
+# ================================
+# Docker (future use)
+# ================================
+docker-compose.override.yml
+docker-compose.yml.bak
+docker-compose.*.tmp
+
+# ================================
+# Resilience4J
+# ================================
+resilience4j.yml
+resilience4j.properties
