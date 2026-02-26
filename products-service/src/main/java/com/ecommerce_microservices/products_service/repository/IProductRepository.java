@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IProductRepository extends JpaRepository<Product, Long> {
 
-    boolean existByCode(Long code);
+    boolean existsByCode(Long code);
 }

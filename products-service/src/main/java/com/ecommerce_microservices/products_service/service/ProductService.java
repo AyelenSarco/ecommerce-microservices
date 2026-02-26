@@ -27,7 +27,7 @@ public class ProductService implements IProductService {
     @Override
     public ProductDTO createProduct(ProductDTO productDTO) {
 
-        if (productRepository.existByCode(productDTO.getCode())){
+        if (productRepository.existsByCode(productDTO.getCode())){
             throw new ConflictException("Product with Code " + productDTO.getCode() + " already exists");
         }
 
