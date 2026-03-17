@@ -1,9 +1,12 @@
 package com.ecommerce_microservices.sales_service.controller;
 
 
+import com.ecommerce_microservices.sales_service.dto.ApiResponse;
 import com.ecommerce_microservices.sales_service.dto.sale.SaleDTO;
 import com.ecommerce_microservices.sales_service.service.SaleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,17 +19,24 @@ public class SaleController {
     private final SaleService saleService;
 
     @PutMapping("/create")
-    public SaleDTO createSale(Long cartId){
-        return saleService.createSale(cartId);
+    public ResponseEntity<ApiResponse> createSale(Long cartId){
+        SaleDTO saleDTO = saleService.createSale(cartId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("Sale created successfully", saleDTO));
     }
 
     @GetMapping("/{id}")
-    public SaleDTO getSale(@PathVariable Long id){
-        return saleService.getSale(id);
+    public ResponseEntity<ApiResponse> getSale(@PathVariable Long id){
+        SaleDTO saleDTO = saleService.getSale(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("Sale", saleDTO));
     }
 
     @GetMapping("/all")
-    public List<SaleDTO> getSales(){
-        return saleService.getSales();
+    public ResponseEntity<ApiResponse> getSales(){
+        List<SaleDTO> salesDTOS = saleService.getSales();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("Sales", salesDTOS));
     }
 }
