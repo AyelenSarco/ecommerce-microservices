@@ -12,10 +12,13 @@ import com.ecommerce_microservices.products_service.model.Product;
 import com.ecommerce_microservices.products_service.repository.IProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -61,6 +64,8 @@ public class ProductService implements IProductService {
         productRepository.deleteById(id);
     }
 
+    
+
     @Override
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
 
@@ -79,6 +84,9 @@ public class ProductService implements IProductService {
     }
 
 
+    /**
+     * This method update the stock of a product
+     * **/
     @Override
     public void updateStock(StockRequestDTO stockRequestDTO) {
 
@@ -91,6 +99,10 @@ public class ProductService implements IProductService {
     }
 
 
+    /**
+     * This method checks the available stock of the products in the list
+     * and returns a DTO with the required information.
+     * **/
     @Override
     public List<StockValidationResponseDTO> validateStock(List<StockRequestDTO> items) {
 
@@ -117,18 +129,43 @@ public class ProductService implements IProductService {
         return stockValidationResponseDTOS;
     }
 
-
+    /**
+     * This method maps the product IDs from the stockRequest list to get all products from the database in one transaction.
+     * Then, it maps the products by ID to find them in O(1).
+     * After that, it validates that each product exists and has enough stock, and decreases the stock.
+     * Finally, it saves all products with updated stock.
+     **/
 
     @Override
-    public void decrementStock(StockRequestDTO stockRequestDTO) {
-        Product dbProduct = productRepository.findById(stockRequestDTO.getProductId())
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+    @Transactional(rollbackFor = Exception.class)
+    public void decrementStock(List<StockRequestDTO> stockRequests) {
 
-        if (dbProduct.getStock() < stockRequestDTO.getQuantity()) {
-            throw new InsufficientStockException("Stock exceeded. Operation failed");
+        List<Long> productsIds = stockRequests.stream()
+                        .map(StockRequestDTO::getProductId)
+                        .toList();
+
+
+        List<Product> products = productRepository.findAllById(productsIds);
+
+        Map<Long, Product> productMap = products.stream()
+                        .collect(Collectors.toMap(Product::getId, p -> p));
+
+
+        //
+        for (StockRequestDTO item : stockRequests) {
+            Product product = productMap.get(item.getProductId());
+
+            if (product == null) {
+                throw new NotFoundException("Product not found: " + product.getCode());
+            }
+            if (product.getStock() < item.getQuantity()) {
+                throw new InsufficientStockException("Stock exceeded. Product: " +  product.getCode());
+            }
+
+            product.setStock(product.getStock() - item.getQuantity());
         }
 
-        dbProduct.setStock(dbProduct.getStock() - stockRequestDTO.getQuantity());
-        productRepository.save(dbProduct);
+        productRepository.saveAll(products);
+
     }
 }

@@ -19,7 +19,7 @@ public interface IProductService {
 
 
     List<StockValidationResponseDTO> validateStock(List<StockRequestDTO> items);
-    void decrementStock(StockRequestDTO stockRequestDTO);
+    void decrementStock(List<StockRequestDTO> stockRequestDTO);
 
 
 }

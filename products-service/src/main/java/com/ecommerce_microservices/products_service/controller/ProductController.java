@@ -81,7 +81,7 @@ public class ProductController {
     }
 
     @PostMapping("/stock/decrement")
-    public ResponseEntity<ApiResponse> decrementStock(@Validated @RequestBody StockRequestDTO stockRequestDTO) {
+    public ResponseEntity<ApiResponse> decrementStock(@Validated @RequestBody List<StockRequestDTO> stockRequestDTO) {
         productService.decrementStock(stockRequestDTO);
 
         return ResponseEntity.status(HttpStatus.OK)
