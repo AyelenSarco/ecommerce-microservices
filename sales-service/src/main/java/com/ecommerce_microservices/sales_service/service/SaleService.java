@@ -80,7 +80,8 @@ public class SaleService implements ISaleService {
     }
 
 
-    @CircuitBreaker(name="products-service", fallbackMethod = "fallBackDecrementStock")
+    @CircuitBreaker(name="products-service",
+            fallbackMethod = "fallBackDecrementStock")
     @Retry(name = "products-service")
     public void decrementStock(List<StockRequestDTO> stockRequests){
         productService.decrementStock(stockRequests);
@@ -89,7 +90,6 @@ public class SaleService implements ISaleService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @CircuitBreaker(name="products-service")
     public SaleDTO createSale(Long cartId) {
 
         // Obtain the cart

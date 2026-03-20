@@ -18,8 +18,8 @@ public class SaleController {
 
     private final SaleService saleService;
 
-    @PutMapping("/create")
-    public ResponseEntity<ApiResponse> createSale(Long cartId){
+    @PostMapping("/create/{cartId}")
+    public ResponseEntity<ApiResponse> createSale(@PathVariable Long cartId){
         SaleDTO saleDTO = saleService.createSale(cartId);
 
         return ResponseEntity.status(HttpStatus.OK)
