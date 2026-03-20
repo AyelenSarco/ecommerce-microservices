@@ -118,6 +118,7 @@ public class ProductService implements IProductService {
             StockValidationResponseDTO dtoResponse = StockValidationResponseDTO.builder()
                     .productId(item.getProductId())
                     .available(hasStock)
+                    .unitPrice(dbProduct.getPrice())
                     .requestedQuantity(item.getQuantity())
                     .availableQuantity(dbProduct.getStock())
                     .build();
