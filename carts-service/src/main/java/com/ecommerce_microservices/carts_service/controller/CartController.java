@@ -70,9 +70,12 @@ public class CartController {
                 .body(ApiResponse.success("Cart", cartViewDTO));
     }
 
-    @PatchMapping("/{id}/close")
-    public ResponseEntity<ApiResponse> closeCart(@PathVariable(name = "id") Long cartId) {
-        cartService.closeCart(cartId);
+    @RequestMapping(
+            value = "/{id}/close",
+            method = RequestMethod.PATCH
+    )
+    public ResponseEntity<ApiResponse> closeCart(@PathVariable(name = "id") Long id) {
+        cartService.closeCart(id);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("Cart closed successfully", null));

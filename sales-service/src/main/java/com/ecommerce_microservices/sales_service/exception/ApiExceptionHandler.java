@@ -1,6 +1,7 @@
-package com.ecommerce_microservices.products_service.exceptions;
+package com.ecommerce_microservices.sales_service.exception;
 
-import com.ecommerce_microservices.products_service.dto.ApiResponse;
+
+import com.ecommerce_microservices.sales_service.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -18,7 +19,7 @@ public class ApiExceptionHandler {
         ApiError error = new ApiError(ex.getMessage(), "BAD_REQUEST");
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.failure("Bad Request", List.of(error)));
+                .body(ApiResponse.failure("Bad Request", List.of(error), null));
     }
 
 
@@ -27,7 +28,7 @@ public class ApiExceptionHandler {
         ApiError error = new ApiError(ex.getMessage(), "NOT_FOUND");
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.failure("Not Found", List.of(error)));
+                .body(ApiResponse.failure("Not Found", List.of(error), null));
     }
 
     @ExceptionHandler(ConflictException.class)
@@ -35,7 +36,7 @@ public class ApiExceptionHandler {
         ApiError error = new ApiError(ex.getMessage(), "CONFLICT");
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.failure("Conflict", List.of(error)));
+                .body(ApiResponse.failure("Conflict", List.of(error),null));
     }
 
     @ExceptionHandler(Exception.class)
@@ -43,7 +44,15 @@ public class ApiExceptionHandler {
         ApiError error = new ApiError( "Internal Server Error", "INTERNAL_SERVER_ERROR");
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.failure("Internal Server Error", List.of(error)));
+                .body(ApiResponse.failure("Internal Server Error", List.of(error), null));
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Object> handleGeneral(RuntimeException ex) {
+        ApiError error = new ApiError( ex.getMessage(), "INTERNAL_SERVER_ERROR");
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.failure("Internal Server Error", List.of(error), null));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -57,15 +66,13 @@ public class ApiExceptionHandler {
 
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.failure("Bad Request", errors));
+                .body(ApiResponse.failure("Bad Request", errors, null));
     }
 
     @ExceptionHandler(InsufficientStockException.class)
     public ResponseEntity<Object> handleInsufficientStockException(InsufficientStockException ex) {
-        ApiError error = new ApiError(ex.getMessage(), "CONFLICT");
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.failure("Some products have insufficient stock", List.of(error)));
+                .body(ApiResponse.failure("Some products have insufficient stock", null, ex.getErrors()));
     }
-
 }
