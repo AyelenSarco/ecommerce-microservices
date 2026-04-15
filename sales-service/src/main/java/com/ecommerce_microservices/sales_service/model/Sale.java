@@ -23,6 +23,6 @@ public class Sale {
 
     private Long cartId;
 
-    @OneToMany(mappedBy = "sale")
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL)
     private List<Snapshot> snapshots;
 }

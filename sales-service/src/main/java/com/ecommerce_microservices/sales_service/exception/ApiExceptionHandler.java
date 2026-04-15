@@ -73,6 +73,6 @@ public class ApiExceptionHandler {
     public ResponseEntity<Object> handleInsufficientStockException(InsufficientStockException ex) {
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.failure("Conflict", null, ex.getErrors()));
+                .body(ApiResponse.failure("Some products have insufficient stock", null, ex.getErrors()));
     }
 }

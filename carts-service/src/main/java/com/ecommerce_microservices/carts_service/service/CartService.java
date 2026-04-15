@@ -190,7 +190,7 @@ public class CartService implements ICartService {
     }
 
 
-    public CartItemViewDTO fallBackGetProduct(Throwable throwable) {
+    public CartItemViewDTO fallBackGetProduct(Long cartId,Throwable throwable) {
 
         System.out.println("FALLBACK ACTIVATED");
         throwable.printStackTrace();

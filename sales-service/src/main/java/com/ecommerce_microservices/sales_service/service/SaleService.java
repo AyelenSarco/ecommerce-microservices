@@ -1,11 +1,13 @@
 package com.ecommerce_microservices.sales_service.service;
 
 
+import com.ecommerce_microservices.sales_service.dto.cart.CartStatusEnum;
 import com.ecommerce_microservices.sales_service.dto.cart.CartViewDTO;
 import com.ecommerce_microservices.sales_service.dto.product.StockErrorDTO;
 import com.ecommerce_microservices.sales_service.dto.product.StockRequestDTO;
 import com.ecommerce_microservices.sales_service.dto.product.StockValidationResponseDTO;
 import com.ecommerce_microservices.sales_service.dto.sale.SaleDTO;
+import com.ecommerce_microservices.sales_service.exception.ConflictException;
 import com.ecommerce_microservices.sales_service.exception.InsufficientStockException;
 import com.ecommerce_microservices.sales_service.exception.NotFoundException;
 import com.ecommerce_microservices.sales_service.mapper.SaleMapper;
@@ -81,12 +83,23 @@ public class SaleService implements ISaleService {
 
 
     @CircuitBreaker(name="products-service",
-            fallbackMethod = "fallBackDecrementStock")
+            fallbackMethod = "fallBackProductsService")
     @Retry(name = "products-service")
     public void decrementStock(List<StockRequestDTO> stockRequests){
         productService.decrementStock(stockRequests);
     }
 
+    @CircuitBreaker(name="carts-service",
+            fallbackMethod = "fallBackCartsService")
+    @Retry(name="carts-service")
+    public void closeCart(Long cartId){
+        cartService.closeCart(cartId);
+    }
+
+    /**
+     * This method creates a sale with the given cartId if it has OPEN status.
+     * It validates stock, creates snapshots and sale data, decreases stock and change cart status.
+     * **/
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -94,6 +107,10 @@ public class SaleService implements ISaleService {
 
         // Obtain the cart
         CartViewDTO cart = this.getCart(cartId);
+
+        if (cart.getStatus() == CartStatusEnum.CLOSED) {
+            throw new ConflictException("Cart is closed");
+        }
 
         // Create list to validate Stock
         List<StockRequestDTO> stockRequests = cart.getCartItems()
@@ -104,6 +121,13 @@ public class SaleService implements ISaleService {
 
         // Validate stock
         List<StockValidationResponseDTO> stockResponses = this.validateStock(stockRequests);
+
+        // Create sale
+
+        Sale sale =  Sale.builder()
+                .cartId(cartId)
+                .date(LocalDate.now())
+                .build();
 
         // Create snapshots
         List<Snapshot> snapshots = cart.getCartItems()
@@ -122,29 +146,27 @@ public class SaleService implements ISaleService {
                                     .unitPrice(stock.getUnitPrice())
                                     .quantity(stock.getRequestedQuantity())
                                     .subtotal(stock.getUnitPrice() *  stock.getRequestedQuantity())
+                                    .sale(sale)
                                     .build();
                         }
                         )
                 .toList();
 
+        sale.setSnapshots(snapshots);
+
         // Calculate total
 
         double total = snapshots.stream().mapToDouble(Snapshot::getSubtotal).sum();
-
-        // Create sale
-
-        Sale sale =  Sale.builder()
-                .cartId(cartId)
-                .total(total)
-                .date(LocalDate.now())
-                .build();
-        sale.setSnapshots(snapshots);
+        sale.setTotal(total);
 
         saleRepository.save(sale);
 
         // Decrement stock --> Only at this point in order to do it only if every thing it's okey.
-        // to do for example: try decrement catch increment and throw exception
+        // to do --> for example: try decrement, catch increment and throw exception
         this.decrementStock(stockRequests);
+
+        // Close cart
+        this.closeCart(cartId);
 
         return saleMapper.toSaleDTO(sale);
     }
@@ -179,8 +201,12 @@ public class SaleService implements ISaleService {
         throw new RuntimeException("Product service unavailable");
     }
 
-    public void fallBackDecrementStock(Throwable throwable) {
+    public void fallBackProductsService(Throwable throwable) {
         throw new RuntimeException("Product service unavailable");
+    }
+
+    public void fallBackCartsService(Throwable throwable) {
+        throw new RuntimeException("Cart service unavailable");
     }
 
 

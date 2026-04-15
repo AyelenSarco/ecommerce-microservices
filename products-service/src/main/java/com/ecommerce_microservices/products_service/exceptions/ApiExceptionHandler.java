@@ -65,7 +65,7 @@ public class ApiExceptionHandler {
         ApiError error = new ApiError(ex.getMessage(), "CONFLICT");
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.failure("Conflict", List.of(error)));
+                .body(ApiResponse.failure("Some products have insufficient stock", List.of(error)));
     }
 
 }
