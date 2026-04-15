@@ -11,6 +11,11 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQLDialect
+    
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
 
 server:
   port: 8091
@@ -23,3 +28,4 @@ eureka:
 feign:
   okhttp:
     enabled: true
+
