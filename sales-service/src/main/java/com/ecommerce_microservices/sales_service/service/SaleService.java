@@ -193,19 +193,19 @@ public class SaleService implements ISaleService {
 
 
 
-    public CartViewDTO fallBackGetCart(Throwable throwable) {
+    public CartViewDTO fallBackGetCart(Long cartId, Throwable throwable) {
         throw new RuntimeException("Cart service unavailable");
     }
 
-    public List<StockValidationResponseDTO> fallBackValidateStock(Throwable throwable) {
+    public List<StockValidationResponseDTO> fallBackValidateStock(List<StockRequestDTO> stockRequest ,Throwable throwable) {
         throw new RuntimeException("Product service unavailable");
     }
 
-    public void fallBackProductsService(Throwable throwable) {
+    public void fallBackProductsService(List<StockRequestDTO> stockRequest ,Throwable throwable) {
         throw new RuntimeException("Product service unavailable");
     }
 
-    public void fallBackCartsService(Throwable throwable) {
+    public void fallBackCartsService(Long cartId, Throwable throwable) {
         throw new RuntimeException("Cart service unavailable");
     }
 

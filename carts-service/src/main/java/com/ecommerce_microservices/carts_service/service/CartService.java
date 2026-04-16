@@ -68,7 +68,7 @@ public class CartService implements ICartService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @CircuitBreaker(name="products-service", fallbackMethod = "fallBackGetProduct")
+    @CircuitBreaker(name="products-service", fallbackMethod = "fallBackAddItemToCart")
     public void addItemToCart(Long cartId, CartItemDTO newCartItemDTO) {
 
         Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new NotFoundException("Cart not found"));
@@ -149,7 +149,7 @@ public class CartService implements ICartService {
      * - set the above list to the cartViewDTO and return it
      **/
     @Override
-    @CircuitBreaker(name="products-service", fallbackMethod = "fallBackGetProduct")
+    @CircuitBreaker(name="products-service", fallbackMethod = "fallBackGetCart")
     public CartViewDTO getCart(Long cartId) {
         Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new NotFoundException("Cart not found"));
 
@@ -189,8 +189,17 @@ public class CartService implements ICartService {
 
     }
 
+    public void fallBackAddItemToCart(Long cartId, CartItemDTO cartItemDTO, Throwable throwable) {
+        throw new RuntimeException("Products service unavailable");
+    }
 
-    public CartItemViewDTO fallBackGetProduct(Long cartId,Throwable throwable) {
+    public CartViewDTO fallBackGetCart(Long cartId, Throwable throwable) {
+        System.out.println("FALLBACK GET CART ACTIVATED");
+        throwable.printStackTrace();
+        throw new RuntimeException("Products service unavailable, cannot get cart details");
+    }
+
+    public CartItemViewDTO fallBackGetProduct(Long productId,Throwable throwable) {
 
         System.out.println("FALLBACK ACTIVATED");
         throwable.printStackTrace();
