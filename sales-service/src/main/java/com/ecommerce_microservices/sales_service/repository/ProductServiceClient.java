@@ -18,5 +18,5 @@ public interface ProductServiceClient {
     public ApiResponse<List<StockValidationResponseDTO>> validateStock(List<StockRequestDTO> toValidate);
 
     @PostMapping("/products/stock/decrement")
-    public ApiResponse decrementStock(@RequestBody List<StockRequestDTO> toDecrement);
+    public ApiResponse<Void> decrementStock(@RequestBody List<StockRequestDTO> toDecrement);
 }
