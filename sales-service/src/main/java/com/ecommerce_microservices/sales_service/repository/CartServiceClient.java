@@ -13,5 +13,5 @@ public interface CartServiceClient {
     public ApiResponse<CartViewDTO> getCart(@PathVariable Long id);
 
     @RequestMapping(method = RequestMethod.PATCH, value = "/carts/{id}/close")
-    public ApiResponse closeCart(@PathVariable Long id);
+    public ApiResponse<Void> closeCart(@PathVariable Long id);
 }
